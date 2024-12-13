@@ -15,3 +15,8 @@ venv\scripts\activate
 pip install -r requirements.txt
 pip freeze > requirements.txt
 ```
+
+## Running the application
+```
+uvicorn app.main:app --reload
+```
