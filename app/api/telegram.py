@@ -70,6 +70,16 @@ async def get_chats_telegram(db: Session = Depends(get_db), user=Depends(get_cur
     return result
 
 
+@router.get("/chats/{chat_id}/messages")
+async def get_messages_telegram(chat_id: int, db: Session = Depends(get_db), user=Depends(get_current_user), telegram_service=Depends(get_telegram_service)):
+    account = db.query(TelegramAccount).filter(
+        TelegramAccount.user_id == user.id).first()
+
+    result = await telegram_service.get_messages(chat_id, account.session_string)
+
+    return result
+
+
 @router.post("/auth/disconnect")
 async def disconnect_telegram(db: Session = Depends(get_db), user=Depends(get_current_user), telegram_service=Depends(get_telegram_service)):
     account = db.query(TelegramAccount).filter(

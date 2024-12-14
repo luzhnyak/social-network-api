@@ -129,7 +129,7 @@ class TelegramAuthService:
             if self.client:
                 await self.client.disconnect()
 
-    async def get_messages(self, session_string: str, chat_id: int, limit: int = 100):
+    async def get_messages(self, chat_id: int,  session_string: str,  limit: int = 100):
         """
         Отримання повідомлень з конкретного чату
 
