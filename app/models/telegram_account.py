@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
-from app.db import Base
+from ..db import Base
 
 
 class TelegramAccount(Base):

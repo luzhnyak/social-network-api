@@ -1,7 +1,6 @@
 import os
-from telethon import TelegramClient, events
+from telethon import TelegramClient
 from telethon.sessions import StringSession
-from telethon.tl.types import InputPeerUser, InputPeerChat, InputPeerChannel
 from telethon.errors import SessionPasswordNeededError
 from typing import List, Dict, Any
 import asyncio

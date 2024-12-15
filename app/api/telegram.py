@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.core.jwt import create_access_token
-from app.models.telegram_account import TelegramAccount
-from app.schemas.telegram import PhoneAuthRequest, PhoneCodeVerifyRequest,  TwoFactorAuthRequest
-from app.deps import get_current_user, get_db, get_telegram_service
+from ..core.jwt import create_access_token
+from ..models.telegram_account import TelegramAccount
+from ..schemas.telegram import PhoneAuthRequest, PhoneCodeVerifyRequest,  TwoFactorAuthRequest
+from ..deps import get_current_user, get_db, get_telegram_service
 
 
 router = APIRouter()

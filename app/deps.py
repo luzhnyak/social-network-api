@@ -1,13 +1,12 @@
 import os
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
 from sqlalchemy.orm import Session
-from app.core.telegram import TelegramAuthService
-from app.db import SessionLocal
-from app.models.user import User
-from app.core.jwt import verify_access_token
-from app.schemas.token import TokenData
+from .core.telegram import TelegramAuthService
+from .db import SessionLocal
+from .models.user import User
+from .core.jwt import verify_access_token
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 

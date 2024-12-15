@@ -1,10 +1,7 @@
-import os
-from fastapi import FastAPI, HTTPException, Depends
-from pydantic import BaseModel
+from fastapi import HTTPException
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 from telethon.errors import SessionPasswordNeededError, PhoneCodeInvalidError
-from typing import List, Dict, Any
 
 
 class TelegramAuthService:
