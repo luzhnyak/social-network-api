@@ -1,4 +1,4 @@
-name: Django Deploy
+name: FastAPI Deploy
 
 on:
   push:
