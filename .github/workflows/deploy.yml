@@ -22,7 +22,7 @@ jobs:
           port: 22
           script: |
             if [ ! -d "/www/wwwroot/social-network-api/.git" ]; then
-                git clone https://${{ secrets.REPO_TOKEN }}@https://github.com/luzhnyak/social-network-api.git /www/wwwroot/social-network-api
+                git clone https://${{ secrets.REPO_TOKEN }}@github.com/luzhnyak/social-network-api.git /www/wwwroot/social-network-api
             fi
             cd /www/wwwroot/social-network-api
             git config --global --add safe.directory /www/wwwroot/social-network-api
