@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db import Base, engine
-from .api import auth, telegram
+from app.db import Base, engine
+from app.api import auth, telegram
 
 Base.metadata.create_all(bind=engine)
 
@@ -11,7 +11,9 @@ app = FastAPI()
 # Дозволити CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Додайте домен вашого фронтенду
+    # Додайте домен вашого фронтенду
+    allow_origins=["http://localhost:3000",
+                   "https://telegram.luzhnyak-dev.pp.ua"],
     allow_credentials=True,
     allow_methods=["*"],  # Дозволити всі HTTP-методи
     allow_headers=["*"],  # Дозволити всі заголовки
