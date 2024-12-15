@@ -11,15 +11,12 @@ class TelegramAuthService:
     def __init__(self, api_id: int, api_hash: str):
         self.api_id = api_id
         self.api_hash = api_hash
-        # Зберігаємо додаткову інформацію про сесію
+
         self.phone_number = None
         self.phone_code_hash = None
         self.client = None
 
     async def create_client(self, session_string: str = None):
-        """
-        Створення нового клієнта Telegram
-        """
         try:
             self.client = TelegramClient(
                 StringSession(
@@ -33,19 +30,11 @@ class TelegramAuthService:
             raise HTTPException(status_code=500, detail=str(e))
 
     async def start_authorization(self, phone_number: str):
-        """
-        Ініціює процес авторизації та надсилає код підтвердження
-        """
         try:
-            # Створюємо нового клієнта
             await self.create_client()
 
-            # Зберігаємо номер телефону
             self.phone_number = phone_number
-
-            # Надсилаємо код
             send_code = await self.client.send_code_request(phone_number)
-
             self.phone_code_hash = send_code.phone_code_hash
 
             return {
@@ -57,14 +46,10 @@ class TelegramAuthService:
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
         finally:
-            # Закриваємо з'єднання, але не видаляємо клієнта
             if self.client:
                 await self.client.disconnect()
 
     async def verify_phone_code(self, phone_number: str, phone_code: str, phone_code_hash: str, session_string: str = None):
-        """
-        Верифікує код підтвердження
-        """
         try:
             await self.create_client(session_string)
             await self.client.sign_in(
@@ -92,9 +77,6 @@ class TelegramAuthService:
                 await self.client.disconnect()
 
     async def verify_2fa_password(self, password: str, session_string: str = None):
-        """
-        Верифікує пароль двофакторної автентифікації
-        """
         try:
             await self.create_client(session_string)
             await self.client.sign_in(password=password)
@@ -109,9 +91,6 @@ class TelegramAuthService:
                 await self.client.disconnect()
 
     async def get_chats(self, session_string: str):
-        """
-        Отримання списку чатів з певної сесії
-        """
         try:
             await self.create_client(session_string)
             chats = []
@@ -119,18 +98,14 @@ class TelegramAuthService:
                 last_message = dialog.message
                 sender_name = None
 
-                # Отримання імені відправника (якщо є повідомлення)
                 if last_message and last_message.sender:
-                    # sender = await self.client.get_entity(last_message.sender_id)
                     if hasattr(last_message.sender, 'first_name') or hasattr(last_message.sender, 'last_name'):
                         sender_name = f"{last_message.sender.first_name or ''} {
                             last_message.sender.last_name or ''}".strip()
-                    elif hasattr(last_message.sender, 'title'):  # Канали або групи
+                    elif hasattr(last_message.sender, 'title'):
                         sender_name = last_message.sender.title
                     else:
                         sender_name = last_message.sender.username or "Unknown"
-
-                # sender_name = sender.first_name or sender.last_name or sender.username or "Unknown"
 
                 chat = {
                     'id': dialog.id,
@@ -153,25 +128,23 @@ class TelegramAuthService:
                 await self.client.disconnect()
 
     async def get_messages(self, chat_id: int,  session_string: str,  limit: int = 100):
-        """
-        Отримання повідомлень з конкретного чату
-
-        :param chat_id: ID чату
-        :param limit: Максимальна кількість повідомлень
-        :return: Список повідомлень        
-        """
-
         try:
             await self.create_client(session_string)
 
             messages = []
             async for message in self.client.iter_messages(chat_id, limit=limit):
+
+                sender_name = None
+                if message.sender:
+                    sender_name = f"{message.sender.first_name or ''} {
+                        message.sender.last_name or ''}".strip() or message.sender.username or "Unknown"
+
                 msg = {
                     'id': message.id,
                     'text': message.text or '',
                     'date': message.date.isoformat(),
                     'sender_id': message.sender_id,
-                    'sender': message.sender.username or message.sender.first_name or message.sender.last_name,
+                    'sender': sender_name,
                     'media': bool(message.media)
                 }
                 messages.append(msg)
@@ -185,11 +158,6 @@ class TelegramAuthService:
                 await self.client.disconnect()
 
     async def logout(self, session_string: str):
-        """
-        Вихід з облікового запису
-
-        :return: Успішність виходу
-        """
         try:
             await self.create_client(session_string)
             if self.client:

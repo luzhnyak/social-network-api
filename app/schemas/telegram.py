@@ -15,7 +15,3 @@ class PhoneCodeVerifyRequest(BaseModel):
 class TwoFactorAuthRequest(BaseModel):
     password: str
     session_string: str
-
-
-class TelegramConnect(BaseModel):
-    session_string: str

@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordRequestForm
-from app.db import SessionLocal
 from app.models.user import User
-from app.schemas.auth import UserCreate, UserLogin
+from app.schemas.auth import UserCreate, UserLogin, UserResponse
 from app.core.security import hash_password, verify_password
 from app.core.jwt import create_access_token
 from app.schemas.token import Token
@@ -36,3 +34,9 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
         )
     access_token = create_access_token(data={"sub": user.email})
     return {"token": access_token, "token_type": "bearer", "message": "Login successful"}
+
+
+@router.get("/refresh-user", response_model=UserResponse)
+def refresh_user(db: Session = Depends(get_db), user=Depends(get_current_user)):
+    access_token = create_access_token(data={"sub": user.email})
+    return {"isTelegramAuth": False, "token": access_token, "message": "Login successful"}
