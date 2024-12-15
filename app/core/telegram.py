@@ -116,10 +116,33 @@ class TelegramAuthService:
             await self.create_client(session_string)
             chats = []
             async for dialog in self.client.iter_dialogs():
+                last_message = dialog.message
+                sender_name = None
+
+                # Отримання імені відправника (якщо є повідомлення)
+                if last_message and last_message.sender:
+                    # sender = await self.client.get_entity(last_message.sender_id)
+                    if hasattr(last_message.sender, 'first_name') or hasattr(last_message.sender, 'last_name'):
+                        sender_name = f"{last_message.sender.first_name or ''} {
+                            last_message.sender.last_name or ''}".strip()
+                    elif hasattr(last_message.sender, 'title'):  # Канали або групи
+                        sender_name = last_message.sender.title
+                    else:
+                        sender_name = last_message.sender.username or "Unknown"
+
+                # sender_name = sender.first_name or sender.last_name or sender.username or "Unknown"
+
                 chat = {
                     'id': dialog.id,
                     'name': dialog.name or 'Unnamed',
                     'type': dialog.entity.__class__.__name__,
+                    'last_message': {
+                        'id': last_message.id if last_message else None,
+                        'text': last_message.text if last_message and last_message.text else None,
+                        'date': last_message.date if last_message else None,
+                        'sender_id': last_message.sender_id if last_message else None,
+                        'sender': sender_name,
+                    }
                 }
                 chats.append(chat)
             return chats
@@ -148,6 +171,7 @@ class TelegramAuthService:
                     'text': message.text or '',
                     'date': message.date.isoformat(),
                     'sender_id': message.sender_id,
+                    'sender': message.sender.username or message.sender.first_name or message.sender.last_name,
                     'media': bool(message.media)
                 }
                 messages.append(msg)

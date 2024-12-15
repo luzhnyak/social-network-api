@@ -75,6 +75,7 @@ async def get_messages_telegram(chat_id: int, db: Session = Depends(get_db), use
     account = db.query(TelegramAccount).filter(
         TelegramAccount.user_id == user.id).first()
 
+    print(chat_id)
     result = await telegram_service.get_messages(chat_id, account.session_string)
 
     return result
