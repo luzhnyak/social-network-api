@@ -41,6 +41,7 @@ class TelegramAuthService:
                 "session_string": self.client.session.save()
             }
         except Exception as e:
+            print("====== Error in start_authorization ======", e)
             raise HTTPException(status_code=400, detail=str(e))
         finally:
             if self.client:

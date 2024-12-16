@@ -38,4 +38,5 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 
 def get_telegram_service():
+    print("TELEGRAM_API_ID", os.getenv('TELEGRAM_API_ID'))
     return TelegramAuthService(api_id=os.getenv('TELEGRAM_API_ID'), api_hash=os.getenv('TELEGRAM_API_HASH'))
