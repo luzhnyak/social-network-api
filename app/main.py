@@ -13,7 +13,7 @@ app.add_middleware(
     CORSMiddleware,
     # Додайте домен вашого фронтенду
     allow_origins=["http://localhost:3000",
-                   "https://telegram.luzhnyak-dev.pp.ua"],
+                   "https://gold-telegram.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],  # Дозволити всі HTTP-методи
     allow_headers=["*"],  # Дозволити всі заголовки
