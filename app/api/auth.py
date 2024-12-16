@@ -41,5 +41,11 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
 def refresh_user(db: Session = Depends(get_db), user=Depends(get_current_user)):
     account = db.query(TelegramAccount).filter(
         TelegramAccount.user_id == user.id).first()
+
+    is_telegram_auth = False
+
+    if account:
+        is_telegram_auth = account.is_telegram_auth
+
     access_token = create_access_token(data={"sub": user.email})
-    return {"isTelegramAuth": account.is_telegram_auth, "token": access_token, "message": "Login successful"}
+    return {"isTelegramAuth": is_telegram_auth, "token": access_token, "message": "Login successful"}

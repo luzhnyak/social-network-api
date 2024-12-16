@@ -18,5 +18,5 @@ pip freeze > requirements.txt
 
 ## Running the application
 ```
-uvicorn app.main:app --reload
+python app/main.py
 ```

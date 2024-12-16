@@ -8,15 +8,13 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Дозволити CORS
 app.add_middleware(
     CORSMiddleware,
-    # Додайте домен вашого фронтенду
     allow_origins=["http://localhost:3000",
                    "https://gold-telegram.vercel.app"],
     allow_credentials=True,
-    allow_methods=["*"],  # Дозволити всі HTTP-методи
-    allow_headers=["*"],  # Дозволити всі заголовки
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
