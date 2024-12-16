@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.db import Base, engine
-from app.api import auth, telegram
+from db import Base, engine
+from api import auth, telegram
 
 Base.metadata.create_all(bind=engine)
 
