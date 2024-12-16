@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from models.telegram_account import TelegramAccount
 from models.user import User
 from schemas.auth import UserCreate, UserLogin, UserResponse
 from core.security import hash_password, verify_password
@@ -38,5 +39,7 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
 
 @router.get("/refresh-user", response_model=UserResponse)
 def refresh_user(db: Session = Depends(get_db), user=Depends(get_current_user)):
+    account = db.query(TelegramAccount).filter(
+        TelegramAccount.user_id == user.id).first()
     access_token = create_access_token(data={"sub": user.email})
-    return {"isTelegramAuth": False, "token": access_token, "message": "Login successful"}
+    return {"isTelegramAuth": account.is_telegram_auth, "token": access_token, "message": "Login successful"}
