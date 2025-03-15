@@ -7,26 +7,25 @@ from app.core.security import hash_password, verify_password
 from app.core.jwt import create_access_token
 from app.schemas.token import Token
 from app.deps import get_current_user, get_db
+from app.services.auth import AuthService
 
 router = APIRouter()
 
 
+def get_user_service(db: Session = Depends(get_db)):
+    return AuthService(db)
+
+
 @router.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
-    new_user = User(email=user.email,
-                    hashed_password=hash_password(user.password))
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    access_token = create_access_token(data={"sub": user.email})
+def register(user: UserCreate, service: AuthService = Depends(get_user_service)):
+    new_user = service.register(user)
+    access_token = create_access_token(data={"sub": new_user.email})
     return {"token": access_token, "token_type": "bearer", "message": "User created successfully"}
 
 
 @router.post("/login", response_model=Token)
-def login(data: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
+def login(data: UserLogin, service: AuthService = Depends(get_user_service)):
+    user = service.login(user)
     if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -38,9 +37,8 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
 
 
 @router.get("/refresh-user", response_model=UserResponse)
-def refresh_user(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    account = db.query(TelegramAccount).filter(
-        TelegramAccount.user_id == user.id).first()
+def refresh_user(user=Depends(get_current_user), service: AuthService = Depends(get_user_service)):
+    account = service.refresh_user(user.id)
 
     is_telegram_auth = False
 
