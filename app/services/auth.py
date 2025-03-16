@@ -1,5 +1,7 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from passlib.context import CryptContext
+from app.core.jwt import create_access_token
+from app.core.security import verify_password
 from app.models.telegram_account import TelegramAccount
 from app.repositories.telegram import TelegramAccountRepository
 from app.repositories.user import UserRepository
@@ -29,8 +31,17 @@ class AuthService:
 
         return self.user_repo.create_user(user.email, hashed_password)
 
-    def login(self, email: str):
-        return self.user_repo.get_user_by_email(email)
+    def login(self, data: UserLogin):
+        user = self.user_repo.get_user_by_email(data.email)
+
+        if not user or not verify_password(data.password, user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        access_token = create_access_token(data={"sub": user.email})
+        return {"token": access_token, "token_type": "bearer", "message": "Login successful"}
 
     def refresh_user(self, user_id: int):
         return self.telegram_repo.get_telegram_account(user_id)
