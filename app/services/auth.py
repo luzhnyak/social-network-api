@@ -8,6 +8,8 @@ from app.repositories.user import UserRepository
 from app.schemas.auth import UserCreate, UserLogin, UserResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.schemas.token import Token
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -22,26 +24,27 @@ class AuthService:
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return pwd_context.verify(plain_password, hashed_password)
 
-    def register(self, user: UserCreate):
+    def register(self, user: UserCreate) -> Token:
         hashed_password = self.get_password_hash(user.password)
 
         if self.user_repo.get_user_by_email(user.email):
             raise HTTPException(
                 status_code=409, detail="Email already registered")
 
-        return self.user_repo.create_user(user.email, hashed_password)
+        user = self.user_repo.create_user(user.email, hashed_password)
+        access_token = create_access_token(data={"sub": user.email})
+        return Token(access_token=access_token)
 
-    def login(self, data: UserLogin):
+    def login(self, data: UserLogin) -> Token:
         user = self.user_repo.get_user_by_email(data.email)
 
         if not user or not verify_password(data.password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials",
-                headers={"WWW-Authenticate": "Bearer"},
             )
         access_token = create_access_token(data={"sub": user.email})
-        return {"token": access_token, "token_type": "bearer", "message": "Login successful"}
+        return Token(access_token=access_token)
 
     def refresh_user(self, user_id: int):
         return self.telegram_repo.get_telegram_account(user_id)

@@ -18,9 +18,7 @@ def get_user_service(db: Session = Depends(get_db)):
 
 @router.post("/register")
 def register(user: UserCreate, service: AuthService = Depends(get_user_service)):
-    new_user = service.register(user)
-    access_token = create_access_token(data={"sub": new_user.email})
-    return {"token": access_token, "token_type": "bearer", "message": "User created successfully"}
+    return service.register(user)
 
 
 @router.post("/login", response_model=Token)
